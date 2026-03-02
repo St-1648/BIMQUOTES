@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BIM QUOTE — Freelancer Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --k:  #000000;
+  --g9: #0c0c0c;
+  --g8: #141414;
+  --g7: #1e1e1e;
+  --g6: #282828;
+  --g5: #383838;
+  --g4: #505050;
+  --g3: #787878;
+  --g2: #a8a8a8;
+  --g1: #d0d0d0;
+  --w:  #ffffff;
+  --fh: 'Barlow Condensed',sans-serif;
+  --fb: 'Barlow',sans-serif;
+  --fm: 'IBM Plex Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--k);color:var(--w);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--k)}
+::-webkit-scrollbar-thumb{background:var(--g5)}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sb{
+  background:var(--g9);
+  border-right:1px solid var(--g6);
+  position:fixed;top:0;left:0;width:200px;height:100vh;
+  display:flex;flex-direction:column;z-index:100;overflow-y:auto;
+}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--g6)}
+.sb-logo-name{font-family:var(--fh);font-size:20px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--w)}
+.sb-logo-rule{width:24px;height:2px;background:var(--w);margin:7px 0 5px}
+.sb-logo-sub{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--g3);text-transform:uppercase}
+.sb-nav{flex:1;padding:10px 0}
+.sb-sec{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--g5);text-transform:uppercase;padding:12px 18px 4px}
+.sb-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 18px;cursor:pointer;
+  color:var(--g3);font-family:var(--fb);font-size:13px;
+  border-left:2px solid transparent;
+  transition:all .12s;
+}
+.sb-item:hover{color:var(--g1);background:var(--g8)}
+.sb-item.on{color:var(--w);font-weight:500;border-left-color:var(--w);background:var(--g8)}
+.sb-item svg{width:13px;height:13px;flex-shrink:0;opacity:.5}
+.sb-item.on svg{opacity:1}
+.nb{
+  margin-left:auto;font-family:var(--fm);font-size:9px;
+  background:var(--g6);color:var(--g2);
+  padding:1px 5px;border:1px solid var(--g5);letter-spacing:.5px;
+}
+.sb-foot{padding:14px 18px;border-top:1px solid var(--g6)}
+.sb-foot-lbl{font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--g4);text-transform:uppercase;margin-bottom:3px}
+.sb-foot-val{font-family:var(--fm);font-size:13px;color:var(--g2)}
+
+/* ── MAIN ── */
+.main{margin-left:200px;padding:28px 32px;min-height:100vh}
+.view{display:none;animation:in .18s ease}
+.view.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--g6);padding-bottom:14px;margin-bottom:26px}
+.ph h1{font-family:var(--fh);font-size:30px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--w)}
+.ph-sub{font-family:var(--fm);font-size:10px;color:var(--g4);margin-top:3px;letter-spacing:.5px}
+.ph-right{font-family:var(--fm);font-size:9px;color:var(--g5);text-align:right;letter-spacing:.5px;line-height:1.8}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--g6);border:1px solid var(--g6);margin-bottom:24px}
+.stat{background:var(--g9);padding:18px 20px}
+.stat-lbl{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--g4);text-transform:uppercase}
+.stat-val{font-family:var(--fh);font-size:34px;font-weight:700;color:var(--w);margin-top:6px;line-height:1;letter-spacing:-1px}
+.stat-note{font-family:var(--fm);font-size:9px;color:var(--g4);margin-top:5px;letter-spacing:.5px}
+
+/* ── CARD ── */
+.card{background:var(--g9);border:1px solid var(--g6);padding:20px;margin-bottom:14px}
+.card-ttl{
+  font-family:var(--fh);font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:2px;color:var(--g3);
+  padding-bottom:12px;margin-bottom:16px;
+  border-bottom:1px solid var(--g7);
+  display:flex;align-items:center;gap:10px;
+}
+.tag{font-family:var(--fm);font-size:8px;letter-spacing:1px;color:var(--g4);border:1px solid var(--g5);padding:2px 6px;text-transform:uppercase}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ── FORM ── */
+.f{margin-bottom:13px}
+.f label{display:block;font-family:var(--fm);font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--g3);margin-bottom:5px}
+.f input,.f select,.f textarea{
+  width:100%;background:var(--k);border:1px solid var(--g5);
+  color:var(--w);font-family:var(--fb);font-size:13px;
+  padding:8px 11px;outline:none;transition:border-color .12s;
+  -webkit-appearance:none;appearance:none;border-radius:0;
+}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--w)}
+.f input::placeholder{color:var(--g5)}
+.f select{
+  cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23505050'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;
+}
+.f textarea{resize:vertical;min-height:68px}
+.f input[type=number]{-moz-appearance:textfield}
+.f input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  padding:5px 11px;border:1px solid var(--g5);background:var(--k);
+  color:var(--g3);font-family:var(--fm);font-size:10px;letter-spacing:.5px;
+  cursor:pointer;transition:all .1s;user-select:none;
+}
+.chip:hover{border-color:var(--g3);color:var(--g1)}
+.chip.on{border-color:var(--w);color:var(--w);background:var(--g7)}
+
+/* ── GRADE ── */
+.grades{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.grade{
+  border:1px solid var(--g6);background:var(--k);
+  padding:13px;cursor:pointer;text-align:center;transition:all .12s;
+}
+.grade:hover{border-color:var(--g4)}
+.grade.gA{border-color:var(--w);background:var(--g8)}
+.grade.gB{border-color:var(--g2);background:var(--g8)}
+.grade.gC{border-color:var(--g4);background:var(--g8)}
+.gl{font-family:var(--fh);font-size:26px;font-weight:800;color:var(--g5)}
+.grade.gA .gl,.grade.gB .gl,.grade.gC .gl{color:var(--w)}
+.gd{font-family:var(--fm);font-size:9px;color:var(--g4);margin-top:5px;letter-spacing:.3px;line-height:1.6}
+.grade.gA .gd,.grade.gB .gd,.grade.gC .gd{color:var(--g2)}
+
+/* ── PRICE PANEL ── */
+.pp{border:1px solid var(--w);background:var(--g9);padding:20px;position:sticky;top:20px}
+.pp-lbl{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--g3);text-transform:uppercase}
+.pp-usd{font-family:var(--fh);font-size:48px;font-weight:700;color:var(--w);letter-spacing:-2px;line-height:1;margin:8px 0 2px}
+.pp-vnd{font-family:var(--fm);font-size:10px;color:var(--g3);letter-spacing:.5px}
+.div{height:1px;background:var(--g6);margin:14px 0}
+.pr{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.pr .l{font-size:12px;color:var(--g3);font-family:var(--fb)}
+.pr .v{font-family:var(--fm);font-size:11px;color:var(--w)}
+.pr .v.lo{color:var(--g4)}
+.pr .v.hi{font-size:13px;font-weight:600}
+.bdi{
+  display:flex;justify-content:space-between;
+  padding:6px 9px;border-left:2px solid var(--g5);
+  margin-bottom:4px;
+}
+.bdi .dn{font-size:12px;color:var(--g2);font-family:var(--fb)}
+.bdi .dp{font-family:var(--fm);font-size:11px;color:var(--w);font-weight:500}
+.pp-sec-lbl{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--g5);text-transform:uppercase;margin-bottom:7px}
+
+/* ── MILESTONES ── */
+.ms{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--g6);background:var(--k);margin-bottom:5px;transition:border-color .1s}
+.ms:hover{border-color:var(--g4)}
+.ms-n{font-family:var(--fm);font-size:10px;color:var(--g4);width:24px;flex-shrink:0}
+.ms-i{flex:1}
+.ms-t{font-size:13px;font-weight:500;color:var(--w);font-family:var(--fb)}
+.ms-d{font-family:var(--fm);font-size:9px;color:var(--g4);margin-top:2px}
+.ms-p{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--w);text-align:right}
+.ms-a{font-family:var(--fm);font-size:9px;color:var(--g3);display:block}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .1s;user-select:none}
+.btn-p{background:var(--w);color:var(--k)}
+.btn-p:hover{background:var(--g1)}
+.btn-g{background:transparent;color:var(--g2);border:1px solid var(--g5)}
+.btn-g:hover{border-color:var(--g2);color:var(--w)}
+.btn-d{background:transparent;color:var(--g4);border:1px solid var(--g6)}
+.btn-d:hover{border-color:var(--g4);color:var(--g2)}
+.btn-sm{padding:5px 11px;font-size:11px}
+.btn-full{width:100%;justify-content:center;margin-top:9px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{border-bottom:2px solid var(--g5)}
+th{padding:9px 13px;text-align:left;font-family:var(--fm);font-size:8px;letter-spacing:1.5px;color:var(--g4);text-transform:uppercase;font-weight:500;white-space:nowrap;background:var(--g9)}
+td{padding:10px 13px;border-bottom:1px solid var(--g7);color:var(--g1)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--g8);color:var(--w)}
+
+/* ── PILL ── */
+.pill{font-family:var(--fm);font-size:8px;letter-spacing:.8px;text-transform:uppercase;font-weight:500;padding:2px 7px;border:1px solid;display:inline-block}
+.pill-w{border-color:var(--g4);color:var(--g2)}
+.pill-b{border-color:var(--g2);color:var(--w)}
+
+/* ── MONO ── */
+.mn{font-family:var(--fm)}
+.mn-hi{font-family:var(--fm);color:var(--w);font-weight:600}
+.mn-lo{font-family:var(--fm);color:var(--g4)}
+
+/* ── LOD DESC ── */
+.lod-d{font-family:var(--fm);font-size:10px;color:var(--g3);border-left:2px solid var(--g5);padding:7px 11px;margin-top:10px;line-height:1.7;letter-spacing:.2px}
+
+/* ── SEARCH ── */
+.srch{background:var(--k);border:1px solid var(--g5);color:var(--w);font-family:var(--fm);font-size:10px;padding:6px 11px;outline:none;width:160px;transition:border-color .12s;letter-spacing:.3px}
+.srch:focus{border-color:var(--w)}
+.srch::placeholder{color:var(--g5)}
+
+/* ── RATE GRID ── */
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ri{background:var(--k);border:1px solid var(--g6);padding:12px 14px;transition:border-color .12s}
+.ri:hover{border-color:var(--g4)}
+.ri-l{font-family:var(--fm);font-size:8px;letter-spacing:1.5px;color:var(--g4);text-transform:uppercase}
+.ri-v{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--w);margin-top:5px;letter-spacing:-.5px}
+
+/* ── PROPOSAL ── */
+#prop-out{border:1px solid var(--g5);background:var(--g9);padding:24px;display:none;margin-top:14px}
+#prop-out.on{display:block;animation:in .2s ease}
+.prop-hdr{border-bottom:1px solid var(--g5);padding-bottom:12px;margin-bottom:16px}
+.prop-ttl{font-family:var(--fh);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.prop-meta{font-family:var(--fm);font-size:9px;color:var(--g4);margin-top:3px;letter-spacing:.5px}
+
+/* ── CLIENT CARD ── */
+.cli-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--g7);background:var(--k);margin-bottom:5px}
+.cli-av{width:30px;height:30px;background:var(--g6);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:15px;font-weight:700;color:var(--w);flex-shrink:0}
+.cli-name{font-weight:500;color:var(--w);font-size:13px}
+.cli-meta{font-family:var(--fm);font-size:9px;color:var(--g4);margin-top:2px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:18px;right:18px;background:var(--w);color:var(--k);padding:9px 16px;font-family:var(--fm);font-size:11px;font-weight:500;letter-spacing:.3px;z-index:9999;pointer-events:none;opacity:0;transform:translateY(5px);transition:all .18s}
+#toast.on{opacity:1;transform:none}
+
+/* ── EMPTY ── */
+.empty{padding:28px 0;text-align:center;font-family:var(--fm);font-size:10px;color:var(--g5);letter-spacing:1px}
+
+@media(max-width:1100px){.stats{grid-template-columns:1fr 1fr}.rg{grid-template-columns:1fr}}
+@media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ════ SIDEBAR ════════════════════════════════════════════════════════════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-name">BIM Quote</div>
+    <div class="sb-logo-rule"></div>
+    <div class="sb-logo-sub">Freelancer Tool · v1</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Workspace</div>
+    <div class="sb-item on" onclick="go('dashboard',this)">
+      <svg viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="0" width="5" height="5"/><rect x="9" y="0" width="5" height="5"/><rect x="0" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item" onclick="go('calc',this)">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12"/><line x1="4" y1="5" x2="10" y2="5"/><line x1="4" y1="8" x2="10" y2="8"/><line x1="4" y1="11" x2="7" y2="11"/></svg>
+      Báo Giá Mới
+    </div>
+    <div class="sb-item" onclick="go('history',this)">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><polyline points="7 3.5 7 7 9.5 8.5"/></svg>
+      Lịch Sử
+      <span class="nb" id="nb-h">0</span>
+    </div>
+    <div class="sb-sec">Quản Lý</div>
+    <div class="sb-item" onclick="go('clients',this)">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="4.5" r="2.5"/><path d="M0.5 13v-1a4 4 0 014-4h1a4 4 0 014 4v1"/><path d="M10 2a2.5 2.5 0 010 5"/><path d="M13.5 13v-1a3 3 0 00-2-2.8"/></svg>
+      Clients
+      <span class="nb" id="nb-c">0</span>
+    </div>
+    <div class="sb-item" onclick="go('proposal',this)">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 1H2v12h10V4.5L8.5 1z"/><polyline points="8.5 1 8.5 4.5 12 4.5"/><line x1="4" y1="7" x2="10" y2="7"/><line x1="4" y1="10" x2="10" y2="10"/></svg>
+      Tạo Proposal
+    </div>
+    <div class="sb-sec">Tham Chiếu</div>
+    <div class="sb-item" onclick="go('rates',this)">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="7" y1="1" x2="7" y2="13"/><path d="M10 3H5.5a2.5 2.5 0 000 5h3a2.5 2.5 0 010 5H3.5"/></svg>
+      Bảng Giá
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-foot-lbl">Rate của bạn</div>
+    <div class="sb-foot-val" id="sb-rate">$16/h</div>
+    <div style="margin-top:9px">
+      <div class="sb-foot-lbl">USD / VNĐ</div>
+      <div class="sb-foot-val">25,500</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════════════════════════════════════════════════════════════════ -->
+<main class="main">
+
+<!-- ░ DASHBOARD ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="view on" id="view-dashboard">
+  <div class="ph">
+    <div>
+      <h1>Dashboard</h1>
+      <div class="ph-sub" id="today">—</div>
+    </div>
+    <div class="ph-right">BIM Freelancer VN<br>Point Cloud → Revit</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-lbl">Total Quotes</div><div class="stat-val" id="st-q">0</div><div class="stat-note">All projects</div></div>
+    <div class="stat"><div class="stat-lbl">Revenue (est.)</div><div class="stat-val" id="st-r">$0</div><div class="stat-note">Quote value</div></div>
+    <div class="stat"><div class="stat-lbl">Avg / Project</div><div class="stat-val" id="st-a">$0</div><div class="stat-note">Per quote</div></div>
+    <div class="stat"><div class="stat-lbl">Clients</div><div class="stat-val" id="st-c">0</div><div class="stat-note">In database</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-ttl">Recent Quotes</div>
+      <div id="recent"><div class="empty">— NO DATA —<br><br><button class="btn btn-p btn-sm" onclick="go('calc')">+ New Quote</button></div></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-ttl">Rate Settings</div>
+        <div class="f"><label>Hourly Rate của bạn ($/h)</label><input type="number" id="my-rate" value="16" min="5" max="200" oninput="setRate(this.value)"></div>
+        <div class="rg" style="margin-top:4px">
+          <div class="ri"><div class="ri-l">Break-even</div><div class="ri-v">$14<span style="font-size:13px;color:var(--g4)">/h</span></div></div>
+          <div class="ri"><div class="ri-l">Your Rate</div><div class="ri-v" id="rd">$16<span style="font-size:13px;color:var(--g4)">/h</span></div></div>
+          <div class="ri"><div class="ri-l">Upwork Fee</div><div class="ri-v">10<span style="font-size:13px;color:var(--g4)">–20%</span></div></div>
+          <div class="ri"><div class="ri-l">USD / VNĐ</div><div class="ri-v">25.5<span style="font-size:13px;color:var(--g4)">K</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░ CALCULATOR ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="view" id="view-calc">
+  <div class="ph">
+    <div><h1>New Quote</h1><div class="ph-sub">Point Cloud → Revit · BIMForum LOD Spec 2023</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start">
+    <div>
+
+      <!-- Project Info -->
+      <div class="card">
+        <div class="card-ttl">Project Info</div>
+        <div class="g2">
+          <div class="f"><label>Tên Dự Án</label><input type="text" id="pn" placeholder="Office Level 3 – Sydney"></div>
+          <div class="f"><label>Client</label><input type="text" id="pc" placeholder="Smith Architects"></div>
+        </div>
+        <div class="g3">
+          <div class="f"><label>GFA (m²)</label><input type="number" id="pa" value="1000" min="50" oninput="calc()"></div>
+          <div class="f"><label>Loại Công Trình</label>
+            <select id="pt" onchange="calc()">
+              <option value="res_h">Nhà phố / Biệt thự</option>
+              <option value="res_a">Chung cư (typical)</option>
+              <option value="office" selected>Văn phòng</option>
+              <option value="hotel">Khách sạn</option>
+              <option value="retail">Trung tâm TM</option>
+              <option value="industrial">Nhà máy</option>
+              <option value="dc">Data Center</option>
+              <option value="heritage">Di sản lịch sử</option>
+              <option value="infra">Hạ tầng / Cầu</option>
+            </select>
+          </div>
+          <div class="f"><label>Nền Tảng</label>
+            <select id="plat" onchange="calc()">
+              <option value="0.10">Upwork (fee 10%)</option>
+              <option value="0.20">Upwork (fee 20%)</option>
+              <option value="0.20">Fiverr (fee 20%)</option>
+              <option value="0.00">Direct Client (0%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOD -->
+      <div class="card">
+        <div class="card-ttl">Level of Development <span class="tag">BIMForum 2023</span></div>
+        <div class="chips" id="lod-chips">
+          <div class="chip" data-v="200" onclick="pickLOD(this)">LOD 200</div>
+          <div class="chip on" data-v="300" onclick="pickLOD(this)">LOD 300</div>
+          <div class="chip" data-v="350" onclick="pickLOD(this)">LOD 350</div>
+          <div class="chip" data-v="400" onclick="pickLOD(this)">LOD 400</div>
+        </div>
+        <div class="lod-d" id="lod-d">LOD 300 — Geometry chính xác, thông số cơ bản. Phổ biến nhất cho as-built hoàn công.</div>
+      </div>
+
+      <!-- Disciplines -->
+      <div class="card">
+        <div class="card-ttl">Bộ Môn Yêu Cầu</div>
+        <div class="chips" id="disc-chips">
+          <div class="chip on" data-v="ARQ" onclick="td(this)">ARQ — Kiến trúc</div>
+          <div class="chip" data-v="STR" onclick="td(this)">STR — Kết cấu</div>
+          <div class="chip" data-v="HVAC" onclick="td(this)">HVAC</div>
+          <div class="chip" data-v="Plumbing" onclick="td(this)">Plumbing</div>
+          <div class="chip" data-v="Electrical" onclick="td(this)">Electrical</div>
+          <div class="chip" data-v="Fire" onclick="td(this)">Fire Protection</div>
+        </div>
+      </div>
+
+      <!-- Point Cloud -->
+      <div class="card">
+        <div class="card-ttl">Chất Lượng Point Cloud</div>
+        <div class="grades">
+          <div class="grade gA" id="gc-A" onclick="pickG('A')"><div class="gl">A</div><div class="gd">≥500 pts/m²<br>Noise &lt;3mm<br>RGB · Coverage ≥95%</div></div>
+          <div class="grade" id="gc-B" onclick="pickG('B')"><div class="gl">B</div><div class="gd">200–500 pts/m²<br>Noise 3–6mm<br>Coverage 80–95%</div></div>
+          <div class="grade" id="gc-C" onclick="pickG('C')"><div class="gl">C</div><div class="gd">&lt;200 pts/m²<br>Noise &gt;6mm<br>Coverage &lt;80%</div></div>
+        </div>
+        <div class="g2" style="margin-top:12px">
+          <div class="f"><label>Định Dạng File</label>
+            <select id="ff" onchange="calc()">
+              <option value="1.00">RCS / RCP — ×1.00</option>
+              <option value="1.00" selected>E57 (FARO/Leica) — ×1.00</option>
+              <option value="1.12">LAS / LAZ — ×1.12</option>
+              <option value="1.25">PLY / XYZ — ×1.25</option>
+              <option value="1.40">Mesh / Matterport — ×1.40</option>
+            </select>
+          </div>
+          <div class="f"><label>Registration</label>
+            <select id="reg" onchange="calc()">
+              <option value="0">Đã register ✓</option>
+              <option value="2">Một phần (+$2/m²)</option>
+              <option value="5">Chưa register (+$5/m²)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adjustments -->
+      <div class="card">
+        <div class="card-ttl">Hệ Số Điều Chỉnh</div>
+        <div class="g2">
+          <div class="f"><label>Tiến Độ</label>
+            <select id="tl" onchange="calc()">
+              <option value="1.00">Bình thường — ×1.00</option>
+              <option value="1.25">Cấp tốc 20–30% — ×1.25</option>
+              <option value="1.50">Cấp tốc &gt;30% — ×1.50</option>
+            </select>
+          </div>
+          <div class="f"><label>Tiêu Chuẩn</label>
+            <select id="std" onchange="calc()">
+              <option value="1.00">Thông thường</option>
+              <option value="1.20">ISO 19650 / COBie — ×1.20</option>
+              <option value="1.15">AIA E203 / NEC4 — ×1.15</option>
+            </select>
+          </div>
+        </div>
+        <div class="f" style="margin-top:2px"><label>Addons</label>
+          <div class="chips" id="add-chips">
+            <div class="chip" data-p="400" data-v="clash" onclick="ta(this)">Clash Detection +$400</div>
+            <div class="chip" data-p="800" data-v="4d" onclick="ta(this)">4D Simulation +$800</div>
+            <div class="chip" data-p="200" data-v="ifc" onclick="ta(this)">Export IFC +$200</div>
+            <div class="chip" data-p="1.5" data-v="dev" onclick="ta(this)">Deviation Report +$1.5/m²</div>
+            <div class="chip" data-p="300" data-v="rend" onclick="ta(this)">Rendering 3 views +$300</div>
+            <div class="chip" data-p="500" data-v="bep" onclick="ta(this)">BEP Document +$500</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-ttl">Ghi Chú Nội Bộ</div>
+        <div class="f"><textarea id="pnotes" placeholder="Thỏa thuận riêng, điều kiện đặc biệt, lưu ý về client..."></textarea></div>
+      </div>
+
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="saveQ()">Save Quote</button>
+        <button class="btn btn-g" onclick="go('proposal');genProp()">Generate Proposal</button>
+        <button class="btn btn-g" onclick="resetC()">Reset</button>
+      </div>
+    </div>
+
+    <!-- PRICE PANEL -->
+    <div>
+      <div class="pp">
+        <div class="pp-lbl">Total Quote</div>
+        <div class="pp-usd" id="tot">$0</div>
+        <div class="pp-vnd" id="vnd">≈ 0 VNĐ</div>
+        <div class="div"></div>
+        <div class="pr"><span class="l">Giá trước phí</span><span class="v" id="pre">$0</span></div>
+        <div class="pr"><span class="l">Phí nền tảng</span><span class="v lo" id="fee">$0</span></div>
+        <div class="pr"><span class="l">Bạn nhận về</span><span class="v hi" id="net">$0</span></div>
+        <div class="div"></div>
+        <div class="pp-sec-lbl">Breakdown</div>
+        <div id="bkd"></div>
+        <div class="div"></div>
+        <div class="pr"><span class="l">Giờ ước tính</span><span class="v mn" id="eh">—</span></div>
+        <div class="pr"><span class="l">Effective rate</span><span class="v mn" id="er">—</span></div>
+        <div class="pr"><span class="l">Hệ số LOD</span><span class="v mn lo" id="lf">×1.00</span></div>
+        <div class="pr"><span class="l">PC Quality ×</span><span class="v mn lo" id="pf">×1.00</span></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-ttl">Milestones</div>
+        <div id="ms"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░ HISTORY ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="view" id="view-history">
+  <div class="ph"><div><h1>Quote History</h1><div class="ph-sub">All saved projects · Local storage</div></div></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-family:var(--fm);font-size:10px;color:var(--g4)"><span id="hc">0</span> RECORDS</div>
+      <div style="display:flex;gap:7px">
+        <input class="srch" placeholder="Search..." oninput="fQ(this.value)">
+        <button class="btn btn-d btn-sm" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Project</th><th>Client</th><th>Type</th><th>GFA</th><th>LOD</th><th>Quote</th><th>Net</th><th>Date</th><th></th></tr></thead>
+        <tbody id="htb"><tr><td colspan="10"><div class="empty">— NO RECORDS —</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ░ CLIENTS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="view" id="view-clients">
+  <div class="ph"><div><h1>Clients</h1><div class="ph-sub">Client database</div></div></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-ttl">Add Client</div>
+      <div class="f"><label>Tên / Công Ty</label><input type="text" id="cn" placeholder="Smith Architects Pty Ltd"></div>
+      <div class="f"><label>Email</label><input type="text" id="ce" placeholder="john@smith.com.au"></div>
+      <div class="f"><label>Country</label>
+        <select id="cc"><option>🇦🇺 Australia</option><option>🇺🇸 United States</option><option>🇬🇧 United Kingdom</option><option>🇸🇬 Singapore</option><option>🇦🇪 UAE</option><option>🇨🇦 Canada</option><option>🇩🇪 Germany</option><option>Other</option></select>
+      </div>
+      <div class="f"><label>Source</label>
+        <select id="cs"><option>Upwork</option><option>Fiverr</option><option>LinkedIn</option><option>Direct Referral</option><option>Cold Outreach</option><option>Agency</option></select>
+      </div>
+      <div class="f"><label>Notes</label><textarea id="cno" placeholder="Timezone, project preferences..."></textarea></div>
+      <button class="btn btn-p btn-full" onclick="addC()">Add Client</button>
+    </div>
+    <div class="card">
+      <div class="card-ttl">Client List <span class="tag" id="ctag">0</span></div>
+      <div id="clist"><div class="empty">— EMPTY —</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ░ PROPOSAL ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="view" id="view-proposal">
+  <div class="ph"><div><h1>Proposal Generator</h1><div class="ph-sub">Auto-generate English proposal · Paste to Upwork or Email</div></div></div>
+  <div class="card">
+    <div class="card-ttl">Freelancer Info</div>
+    <div class="g3">
+      <div class="f"><label>Tên bạn</label><input type="text" id="prn" value="[Your Name]"></div>
+      <div class="f"><label>Số năm KN</label><input type="number" id="pry" value="5" min="1"></div>
+      <div class="f"><label>Dự án tương tự</label><input type="number" id="prs" value="8" min="1"></div>
+    </div>
+    <div class="f"><label>Portfolio URL</label><input type="text" id="prp" placeholder="https://behance.net/yourname"></div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-p" onclick="genProp()">Generate</button>
+      <button class="btn btn-g" onclick="cpProp()">Copy Text</button>
+    </div>
+  </div>
+  <div id="prop-out"></div>
+</div>
+
+<!-- ░ RATES ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="view" id="view-rates">
+  <div class="ph"><div><h1>Rate Reference</h1><div class="ph-sub">Point Cloud → Revit · USD/m² · LOD 300 · Grade B baseline</div></div></div>
+  <div class="card">
+    <div class="card-ttl">Price Matrix — Full Package $/m² GFA</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Building Type</th><th>ARQ</th><th>STR</th><th>MEP</th><th>ARQ+STR</th><th>Full Pkg</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill pill-w">Residential</span></td><td class="mn">$5–7</td><td class="mn">$4–6</td><td class="mn">$3–6</td><td class="mn-hi">$8–11</td><td class="mn-hi">$11–17</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">Most common</td></tr>
+          <tr><td><span class="pill pill-w">Apartment</span></td><td class="mn">$3–5</td><td class="mn">$3–5</td><td class="mn">$3–5</td><td class="mn-hi">$5–9</td><td class="mn-hi">$8–14</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">Repeat floors</td></tr>
+          <tr><td><span class="pill pill-b">Office</span></td><td class="mn">$5–8</td><td class="mn">$5–8</td><td style="font-family:var(--fm);color:var(--w);font-weight:600">$8–15</td><td class="mn-hi">$9–14</td><td style="font-family:var(--fm);color:var(--w);font-weight:700;font-size:13px">$18–28</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">HVAC dominates</td></tr>
+          <tr><td><span class="pill pill-b">Hotel</span></td><td class="mn">$7–12</td><td class="mn">$6–10</td><td class="mn">$10–18</td><td class="mn-hi">$12–20</td><td style="font-family:var(--fm);color:var(--w);font-weight:700;font-size:13px">$22–35</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">Zone pricing</td></tr>
+          <tr><td><span class="pill pill-w">Industrial</span></td><td class="mn">$5–9</td><td class="mn">$7–12</td><td style="font-family:var(--fm);color:var(--w);font-weight:600">$20–40</td><td class="mn-hi">$10–18</td><td style="font-family:var(--fm);color:var(--w);font-weight:700;font-size:13px">$35–60</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">Process piping</td></tr>
+          <tr><td><span class="pill pill-w">Data Center</span></td><td class="mn">$6–10</td><td class="mn">$5–9</td><td style="font-family:var(--fm);color:var(--w);font-weight:600">$18–35</td><td class="mn-hi">$10–16</td><td style="font-family:var(--fm);color:var(--w);font-weight:700;font-size:13px">$28–50</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">Cooling & power</td></tr>
+          <tr><td><span class="pill pill-b">Heritage</span></td><td style="font-family:var(--fm);color:var(--w);font-weight:600">$15–30</td><td style="font-family:var(--fm);color:var(--w);font-weight:600">$12–22</td><td class="mn">$8–15</td><td style="font-family:var(--fm);color:var(--w);font-weight:600">$22–40</td><td style="font-family:var(--fm);color:var(--w);font-weight:700;font-size:13px">$30–60</td><td style="font-family:var(--fm);font-size:9px;color:var(--g4)">Niche · low competition</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-ttl">Adjustment Factors</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Condition</th><th>Factor</th><th>Apply When</th></tr></thead>
+        <tbody>
+          <tr><td class="mn-lo">01</td><td>PC Grade A</td><td><span class="pill pill-b">×1.00</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">Baseline</td></tr>
+          <tr><td class="mn-lo">02</td><td>PC Grade B</td><td><span class="pill pill-w">×1.15–1.25</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">1–2 criteria average</td></tr>
+          <tr><td class="mn-lo">03</td><td>PC Grade C</td><td><span class="pill pill-w">×1.30–1.50</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">2+ criteria poor</td></tr>
+          <tr><td class="mn-lo">04</td><td>Registration needed</td><td><span class="pill pill-w">+$3–8/m²</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">$100–250/station</td></tr>
+          <tr><td class="mn-lo">05</td><td>LOD 350</td><td><span class="pill pill-w">×1.40–1.60</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">Hosted params + interfaces</td></tr>
+          <tr><td class="mn-lo">06</td><td>LOD 400</td><td><span class="pill pill-w">×1.80–2.20</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">Fabrication-ready</td></tr>
+          <tr><td class="mn-lo">07</td><td>Rush &gt;30%</td><td><span class="pill pill-w">×1.50</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">Overtime / weekend</td></tr>
+          <tr><td class="mn-lo">08</td><td>Scale &lt;500m²</td><td><span class="pill pill-w">×1.20–1.40</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">Fixed cost dilution</td></tr>
+          <tr><td class="mn-lo">09</td><td>Scale &gt;20,000m²</td><td><span class="pill pill-b">×0.80–0.90</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">Economy of scale</td></tr>
+          <tr><td class="mn-lo">10</td><td>ISO 19650 / COBie</td><td><span class="pill pill-w">+15–25%</span></td><td style="font-family:var(--fm);font-size:9px;color:var(--g3)">IFC, BEP, metadata</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+<div id="toast"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const USD=25500;
+const R={
+  res_h:     {ARQ:6,STR:5,HVAC:3,Plumbing:2.5,Electrical:2,Fire:1.5},
+  res_a:     {ARQ:4,STR:4,HVAC:2.5,Plumbing:2,Electrical:1.5,Fire:1},
+  office:    {ARQ:6,STR:5.5,HVAC:11,Plumbing:3,Electrical:3,Fire:2.5},
+  hotel:     {ARQ:9,STR:8,HVAC:14,Plumbing:5,Electrical:4,Fire:3},
+  retail:    {ARQ:5,STR:5,HVAC:12,Plumbing:3,Electrical:5,Fire:3},
+  industrial:{ARQ:5,STR:9,HVAC:10,Plumbing:4,Electrical:7,Fire:4},
+  dc:        {ARQ:8,STR:7,HVAC:24,Plumbing:5,Electrical:13,Fire:5},
+  heritage:  {ARQ:22,STR:17,HVAC:10,Plumbing:4,Electrical:5,Fire:3},
+  infra:     {ARQ:15,STR:20,HVAC:8,Plumbing:4,Electrical:5,Fire:3},
+};
+const LF={'200':.65,'300':1,'350':1.5,'400':2};
+const LD={
+  '200':'LOD 200 — Geometry tổng quát, không gian cơ bản. Dùng cho concept/schematic design.',
+  '300':'LOD 300 — Geometry chính xác, thông số cơ bản. Phổ biến nhất cho as-built hoàn công.',
+  '350':'LOD 350 — LOD 300 + kết nối hệ thống: MEP interfaces, structural connections.',
+  '400':'LOD 400 — Fabrication-ready. Đầy đủ thông tin cho chế tạo và lắp đặt.'
+};
+const GF={A:1,B:1.2,C:1.4};
+const TL={res_h:'Nhà phố',res_a:'Chung cư',office:'Văn phòng',hotel:'Khách sạn',retail:'TTTM',industrial:'Nhà máy',dc:'Data Center',heritage:'Di sản',infra:'Hạ tầng'};
+const TM={res_h:.12,res_a:.09,office:.18,hotel:.22,retail:.20,industrial:.28,dc:.30,heritage:.40,infra:.22};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let LOD='300',GRADE='A',DISC=new Set(['ARQ']),ADDS=new Set();
+let quotes=[],clients=[];
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.onload=()=>{
+  document.getElementById('today').textContent=new Date().toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  try{quotes=JSON.parse(localStorage.getItem('bq')||'[]');clients=JSON.parse(localStorage.getItem('bc')||'[]');}catch(e){}
+  render();calc();
+};
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function go(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('view-'+id).classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'"))n.classList.add('on');
+  });
+}
+
+// ── CALCULATOR ───────────────────────────────────────────────────────────────
+function pickLOD(el){
+  document.querySelectorAll('#lod-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');LOD=el.dataset.v;
+  document.getElementById('lod-d').textContent=LD[LOD];calc();
+}
+function pickG(g){
+  ['A','B','C'].forEach(x=>{document.getElementById('gc-'+x).className='grade'});
+  document.getElementById('gc-'+g).classList.add('g'+g);
+  GRADE=g;calc();
+}
+function td(el){const v=el.dataset.v;el.classList.contains('on')?(el.classList.remove('on'),DISC.delete(v)):(el.classList.add('on'),DISC.add(v));calc();}
+function ta(el){const v=el.dataset.v;el.classList.contains('on')?(el.classList.remove('on'),ADDS.delete(v)):(el.classList.add('on'),ADDS.add(v));calc();}
+
+function calc(){
+  const area=parseFloat(document.getElementById('pa').value)||0;
+  const type=document.getElementById('pt').value;
+  const plat=parseFloat(document.getElementById('plat').value)||0;
+  const ff=parseFloat(document.getElementById('ff').value)||1;
+  const reg=parseFloat(document.getElementById('reg').value)||0;
+  const tl=parseFloat(document.getElementById('tl').value)||1;
+  const std=parseFloat(document.getElementById('std').value)||1;
+  const lf=LF[LOD]||1,gf=GF[GRADE]||1;
+  let sf=1;
+  if(area<500)sf=1.3;else if(area<1500)sf=1;else if(area<5000)sf=.95;else if(area>20000)sf=.85;
+  const r=R[type]||R.office;
+  const bkd={};let base=0;
+  DISC.forEach(d=>{const c=area*(r[d]||5)*lf*gf*ff*sf*tl*std;bkd[d]=c;base+=c;});
+  const regF=reg*area;base+=regF;
+  let addT=0;
+  ADDS.forEach(a=>{const chip=document.querySelector(`#add-chips .chip[data-v="${a}"]`);let p=parseFloat(chip?.dataset.p)||0;if(a==='dev')p=area*1.5;addT+=p;});
+  const total=base+addT,feeA=total*plat,netA=total-feeA;
+  const estH=area*(TM[type]||.18)*(DISC.size/3)*lf,effR=estH>0?netA/estH:0;
+
+  document.getElementById('tot').textContent='$'+fmt(total);
+  document.getElementById('vnd').textContent='≈ '+fmtV(total*USD)+' VNĐ';
+  document.getElementById('pre').textContent='$'+fmt(total);
+  document.getElementById('fee').textContent=plat>0?'–$'+fmt(feeA):'$0';
+  document.getElementById('net').textContent='$'+fmt(netA);
+  document.getElementById('lf').textContent='×'+lf.toFixed(2);
+  document.getElementById('pf').textContent='×'+(gf*ff).toFixed(2);
+  document.getElementById('eh').textContent=estH>0?Math.round(estH)+'h (~'+Math.round(estH/40)+' wks)':'—';
+  document.getElementById('er').textContent=effR>0?'$'+effR.toFixed(1)+'/h':'—';
+
+  let bH='';
+  Object.entries(bkd).forEach(([k,v])=>bH+=`<div class="bdi"><span class="dn">${k}</span><span class="dp">$${fmt(v)}</span></div>`);
+  if(regF>0)bH+=`<div class="bdi"><span class="dn">Registration</span><span class="dp">$${fmt(regF)}</span></div>`;
+  if(addT>0)bH+=`<div class="bdi"><span class="dn">Addons</span><span class="dp">$${fmt(addT)}</span></div>`;
+  document.getElementById('bkd').innerHTML=bH||'<div style="font-family:var(--fm);font-size:9px;color:var(--g5);padding:5px 9px">— select a discipline —</div>';
+
+  const msDef=[{n:'M0',t:'Deposit',d:'Contract / Upwork contract created',p:25},{n:'M1',t:'Draft',d:'Skeleton model — client review checkpoint',p:30},{n:'M2',t:'Main',d:'Full model complete, pre-final QC',p:25},{n:'M3',t:'Final',d:'Approved delivery + 30-day warranty',p:20}];
+  document.getElementById('ms').innerHTML=msDef.map(m=>`<div class="ms"><div class="ms-n">${m.n}</div><div class="ms-i"><div class="ms-t">${m.t}</div><div class="ms-d">${m.d}</div></div><div class="ms-p">${m.p}%<span class="ms-a">~$${fmt(netA*m.p/100)}</span></div></div>`).join('');
+}
+
+function saveQ(){
+  const name=document.getElementById('pn').value.trim()||'Untitled';
+  const cli=document.getElementById('pc').value.trim()||'—';
+  const area=parseFloat(document.getElementById('pa').value)||0;
+  const type=document.getElementById('pt').value;
+  const total=parseFloat(document.getElementById('tot').textContent.replace(/[$,]/g,''))||0;
+  const net=parseFloat(document.getElementById('net').textContent.replace(/[$,]/g,''))||0;
+  quotes.unshift({id:Date.now(),name,cli,area,type:TL[type]||type,lod:LOD,total,net,disc:[...DISC],grade:GRADE,notes:document.getElementById('pnotes').value,date:new Date().toLocaleDateString('vi-VN')});
+  save();render();toast('Saved: '+name);
+}
+function resetC(){
+  document.getElementById('pn').value='';document.getElementById('pc').value='';
+  document.getElementById('pa').value=1000;document.getElementById('pnotes').value='';
+  pickG('A');
+  document.querySelectorAll('#lod-chips .chip').forEach(c=>c.classList.remove('on'));
+  document.querySelector('#lod-chips .chip[data-v="300"]').classList.add('on');LOD='300';
+  DISC=new Set(['ARQ']);
+  document.querySelectorAll('#disc-chips .chip').forEach(c=>c.classList.remove('on'));
+  document.querySelector('#disc-chips .chip[data-v="ARQ"]').classList.add('on');
+  ADDS=new Set();document.querySelectorAll('#add-chips .chip').forEach(c=>c.classList.remove('on'));
+  calc();toast('Reset');
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+function fQ(v){renderH(v.toLowerCase());}
+function renderH(f=''){
+  const data=f?quotes.filter(q=>q.name.toLowerCase().includes(f)||q.cli.toLowerCase().includes(f)):quotes;
+  document.getElementById('hc').textContent=data.length;
+  document.getElementById('nb-h').textContent=quotes.length;
+  const tb=document.getElementById('htb');
+  if(!data.length){tb.innerHTML='<tr><td colspan="10"><div class="empty">— NO RECORDS —</div></td></tr>';return;}
+  tb.innerHTML=data.map((q,i)=>`<tr>
+    <td class="mn-lo">${String(i+1).padStart(2,'0')}</td>
+    <td style="font-weight:500;color:var(--w)">${q.name}</td>
+    <td>${q.cli}</td>
+    <td><span class="pill pill-w">${q.type}</span></td>
+    <td class="mn">${fmt(q.area)}m²</td>
+    <td><span class="pill pill-w">LOD ${q.lod}</span></td>
+    <td class="mn-hi">$${fmt(q.total)}</td>
+    <td class="mn">$${fmt(q.net)}</td>
+    <td style="font-family:var(--fm);font-size:9px;color:var(--g4)">${q.date}</td>
+    <td><button class="btn btn-d btn-sm" onclick="delQ(${q.id})">✕</button></td>
+  </tr>`).join('');
+}
+function delQ(id){quotes=quotes.filter(q=>q.id!==id);save();render();toast('Deleted');}
+function clearAll(){if(!confirm('Delete all records?'))return;quotes=[];save();render();toast('Cleared');}
+
+// ── CLIENTS ──────────────────────────────────────────────────────────────────
+function addC(){
+  const name=document.getElementById('cn').value.trim();
+  if(!name){toast('Enter client name');return;}
+  clients.unshift({id:Date.now(),name,email:document.getElementById('ce').value,country:document.getElementById('cc').value,src:document.getElementById('cs').value,notes:document.getElementById('cno').value,date:new Date().toLocaleDateString('vi-VN')});
+  document.getElementById('cn').value='';document.getElementById('ce').value='';document.getElementById('cno').value='';
+  save();render();toast('Added: '+name);
+}
+function delCli(id){clients=clients.filter(c=>c.id!==id);save();render();}
+function renderC(){
+  const el=document.getElementById('clist');
+  document.getElementById('nb-c').textContent=clients.length;
+  document.getElementById('ctag').textContent=clients.length;
+  if(!clients.length){el.innerHTML='<div class="empty">— EMPTY —</div>';return;}
+  el.innerHTML=clients.map(c=>`<div class="cli-item">
+    <div class="cli-av">${c.name[0].toUpperCase()}</div>
+    <div style="flex:1">
+      <div class="cli-name">${c.name}</div>
+      <div class="cli-meta">${c.country} · ${c.src} · ${c.date}${c.email?'<br>'+c.email:''}</div>
+    </div>
+    <button class="btn btn-d btn-sm" onclick="delCli(${c.id})">✕</button>
+  </div>`).join('');
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats(){
+  const rev=quotes.reduce((s,q)=>s+q.total,0);
+  document.getElementById('st-q').textContent=quotes.length;
+  document.getElementById('st-r').textContent='$'+fmt(rev);
+  document.getElementById('st-a').textContent=quotes.length?'$'+fmt(rev/quotes.length):'$0';
+  document.getElementById('st-c').textContent=clients.length;
+  document.getElementById('nb-h').textContent=quotes.length;
+  const rl=document.getElementById('recent');
+  if(!quotes.length){rl.innerHTML='<div class="empty">— NO DATA —<br><br><button class="btn btn-p btn-sm" onclick="go(\'calc\')">+ New Quote</button></div>';return;}
+  rl.innerHTML=quotes.slice(0,6).map(q=>`<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--g7)">
+    <div style="flex:1">
+      <div style="font-weight:500;color:var(--w);font-size:13px">${q.name}</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--g4);margin-top:2px">${q.cli} · ${q.type} · LOD ${q.lod}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-family:var(--fm);font-weight:600;color:var(--w)">$${fmt(q.total)}</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--g5)">${q.date}</div>
+    </div>
+  </div>`).join('');
+}
+
+// ── PROPOSAL ─────────────────────────────────────────────────────────────────
+function genProp(){
+  const proj=document.getElementById('pn').value||'[Project]';
+  const cli=document.getElementById('pc').value||'[Client]';
+  const area=document.getElementById('pa').value||'?';
+  const type=TL[document.getElementById('pt').value]||'';
+  const myN=document.getElementById('prn').value||'[Name]';
+  const yrs=document.getElementById('pry').value;
+  const sim=document.getElementById('prs').value;
+  const port=document.getElementById('prp').value;
+  const total=document.getElementById('tot').textContent;
+  const wks=document.getElementById('eh').textContent.split('(')[1]?.replace(')','').trim()||'?';
+  const discs=[...DISC].join(', ');
+  const txt=`Hi ${cli},
+
+I've carefully reviewed your ${type} project requirements and I'm confident I can deliver exactly what you need.
+
+PROJECT UNDERSTANDING
+Type: ${type} | Area: ${area}m² | Scope: ${discs} | LOD ${LOD}
+Deliverables: Revit .rvt file + PDF drawings${ADDS.size?' + '+[...ADDS].join(', '):''}
+
+MY APPROACH
+I will use Autodesk Revit linked with your Point Cloud data (via ReCap Pro) to build accurate as-built models. My workflow follows BIMForum LOD Specification 2023 standards.
+
+Step 1: Point Cloud QC & registration check
+Step 2: ${discs} skeleton model — client review checkpoint (M1)
+Step 3: Detailed modeling + coordination
+Step 4: QA/QC, deviation check, final handover
+
+MY EXPERIENCE
+BIM specialist with ${yrs}+ years and ${sim}+ similar as-built projects for clients in Australia, UK, and Singapore.${port?'\nPortfolio: '+port:''}
+
+INVESTMENT
+Total: ${total}
+Includes: 2 revision rounds + 30-day bug warranty
+Payment: milestone-based (25% deposit / 30% / 25% / 20% final)
+Timeline: approximately ${wks} from Point Cloud receipt
+
+Before I finalise the scope, 2 quick questions:
+1. Is the Point Cloud already registered and cleaned? What format? (.E57 / .RCS / .RCP)
+2. Any specific Revit template or company standards to follow?
+
+Best regards,
+${myN}`;
+  const el=document.getElementById('prop-out');
+  el.className='on';
+  el.innerHTML=`<div class="prop-hdr"><div class="prop-ttl">Proposal · ${proj}</div><div class="prop-meta">${type} · LOD ${LOD} · ${total} · ${new Date().toLocaleDateString('vi-VN')}</div></div>
+<pre style="white-space:pre-wrap;font-family:var(--fm);font-size:11.5px;line-height:1.9;color:var(--g1)">${txt}</pre>
+<div style="margin-top:14px;display:flex;gap:8px"><button class="btn btn-p btn-sm" onclick="cpT(\`${txt.replace(/`/g,'\\`').replace(/\\/g,'\\\\').replace(/\$/g,'\\$')}\`)">Copy to Clipboard</button></div>`;
+  toast('Proposal generated');
+}
+function cpProp(){const pre=document.querySelector('#prop-out pre');if(!pre){toast('Generate first');return;}navigator.clipboard.writeText(pre.textContent).then(()=>toast('Copied'));}
+function cpT(t){navigator.clipboard.writeText(t).then(()=>toast('Copied'));}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function setRate(v){document.getElementById('sb-rate').textContent='$'+v+'/h';document.getElementById('rd').innerHTML='$'+v+'<span style="font-size:13px;color:var(--g4)">/h</span>';}
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+function fmtV(n){if(n>=1e9)return(n/1e9).toFixed(1)+' tỷ';if(n>=1e6)return(n/1e6).toFixed(0)+' triệu';return Math.round(n).toLocaleString('vi-VN');}
+function save(){localStorage.setItem('bq',JSON.stringify(quotes));localStorage.setItem('bc',JSON.stringify(clients));}
+function render(){renderH();renderC();renderStats();}
+let _t;
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('on');clearTimeout(_t);_t=setTimeout(()=>el.classList.remove('on'),2600);}
+</script>
+</body>
+</html>
