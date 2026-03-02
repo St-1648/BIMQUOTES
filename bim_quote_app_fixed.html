@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BIM QUOTE — Freelancer Tool</title>
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Giữ nguyên phần CSS của bạn ở đây */
+</style>
+</head>
+<body>
+<!-- Giữ nguyên phần HTML chính (sidebar, main, v.v.) -->
+
+<script>
+/* Giữ nguyên phần JS cũ, chỉ bổ sung đoạn kết bị thiếu */
+function cpT(t){
+  navigator.clipboard.writeText(t).then(()=>{
+    toast('Copied');
+  });
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'),2000);
+}
+
+function fmt(n){return n.toLocaleString('en-US',{maximumFractionDigits:0});}
+function fmtV(n){return n.toLocaleString('en-US',{maximumFractionDigits:0});}
+function save(){
+  localStorage.setItem('bq',JSON.stringify(quotes));
+  localStorage.setItem('bc',JSON.stringify(clients));
+}
+function render(){renderStats();renderH();renderC();}
+</script>
+</body>
+</html>
